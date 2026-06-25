@@ -1034,17 +1034,6 @@ components:
               items:
                 type: string
                 description: The special domain of the VPC.
-        reservedCidrs:
-          type: array
-          description: >
-            The list of reserved CIDR blocks for your private space to prevent IP address overlap.
-            Required when you want to connect your private space to your corporate network (either on-premises or in the cloud).
-            Use CIDR notation and commas.
-          example: ["192.168.0.0/16", "172.16.0.0/12"]
-          items:
-            type: string
-            description: The reserved CIDR of the Private Space network.
-
     PrivateSpaceNetwork:
       type: object
       description: Private space network configuration
