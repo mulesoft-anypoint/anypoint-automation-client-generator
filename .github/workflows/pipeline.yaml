@@ -20,14 +20,20 @@ jobs:
     env:
       CLIENT_GO_REPO: https://github.com/mulesoft-anypoint/anypoint-client-go.git
       CLIENT_GO_BRANCH: dev
-      #should be the base64 of base64(x-access-token:<accessToken>). more info here https://milangatyas.com/Blog/Detail/11/github-git-repository-authentication-for-auto
-      GIT_AUTH_HEADER_B64: ${{ secrets.GIT_AUTH_HEADER_B64 }}
       GIT_PIPELINE_USER_EMAIL: pipeline@anypoint-client-generator.com
       GIT_PIPELINE_USER_NAME: pipeline-anypoint-clients-generator
       APP_NAME: anypoint-client-generator
       COMMIT_MSG: Generates modules from pipeline.
 
     steps:
+      - name: Build git auth header
+        env:
+          CLIENT_GO_PAT: ${{ secrets.CLIENT_GO_PAT }}
+        run: |
+          if [ -z "$CLIENT_GO_PAT" ]; then echo "::error::secret CLIENT_GO_PAT is not set"; exit 1; fi
+          hdr=$(printf 'x-access-token:%s' "$(printf '%s' "$CLIENT_GO_PAT" | tr -d '\r\n[:space:]')" | base64 | tr -d '\n')
+          echo "::add-mask::$hdr"
+          echo "GIT_AUTH_HEADER_B64=$hdr" >> "$GITHUB_ENV"
       - name: Set Up JDK 17
         uses: actions/setup-java@v1
         with:
@@ -51,9 +57,13 @@ jobs:
           git -c http.extraheader="AUTHORIZATION: basic ${{env.GIT_AUTH_HEADER_B64}}" clone --branch ${{env.CLIENT_GO_BRANCH}} ${{env.CLIENT_GO_REPO}} $GO_CLIENT_FOLDER
           npx openapi-generator-cli generate
           cd $GO_CLIENT_FOLDER
-          git add .
-          git commit -am "${{env.COMMIT_MSG}}"
-          git -c http.extraheader="AUTHORIZATION: basic ${{env.GIT_AUTH_HEADER_B64}}" push
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No generated changes"
+          else
+            git commit -m "${{env.COMMIT_MSG}}"
+            git -c http.extraheader="AUTHORIZATION: basic ${{env.GIT_AUTH_HEADER_B64}}" push
+          fi
 
 
 
