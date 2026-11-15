@@ -504,6 +504,12 @@ components:
         instanceLabel:
           type: string
           nullable: true
+        description:
+          type: string
+          nullable: true
+        providerId:
+          type: string
+          nullable: true
 
     ApimInstancePostResponse:
       type: object
