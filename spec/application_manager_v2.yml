@@ -258,6 +258,10 @@ components:
         enforceDeployingReplicasAcrossNodes:
           title: EnforceDeployingReplicasAcrossNodes
           type: boolean
+        instanceType:
+          title: InstanceType
+          type: string
+          description: Replica size for CloudHub 2.0 deployments on usage-based pricing (e.g. mule.nano, mule.micro). Omit for Runtime Fabric and vCore-priced targets.
         http:
           title: Http
           type: object
