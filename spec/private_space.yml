@@ -237,6 +237,29 @@ paths:
         required: true
         schema:
           type: string
+    post:
+      operationId: attachPrivateSpaceTransitGateway
+      description: attaches an existing organization transit gateway to the given private space with the given static routes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: Static routes (CIDR strings) to push into the private space route table.
+              items:
+                type: string
+      responses:
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '200':
+          $ref: '#/components/responses/SuccessListTransitGateways'
     patch:
       operationId: updatePrivateSpaceTransitGatewayRoutes
       description: updates the static routes of a transit gateway attachment
@@ -1222,6 +1245,17 @@ components:
             spaceName:
               type: string
               description: Private space display name.
+            ch2AwsAccountId:
+              type: string
+              description: CloudHub 2.0 AWS account id of the transit gateway (organization list only).
+        tgwResource:
+          type: string
+          description: AWS console URL pointing at the transit gateway resource (organization list only).
+        attachments:
+          type: array
+          description: Per-private-space attachments of this transit gateway (organization list only).
+          items:
+            $ref: '#/components/schemas/TransitGateway'
         status:
           type: object
           properties:
