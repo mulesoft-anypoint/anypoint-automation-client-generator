@@ -237,6 +237,29 @@ paths:
         required: true
         schema:
           type: string
+    post:
+      operationId: attachPrivateSpaceTransitGateway
+      description: attaches an existing organization transit gateway to the given private space with the given static routes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              description: Static routes (CIDR strings) to push into the private space route table.
+              items:
+                type: string
+      responses:
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+        '403':
+          $ref: '#/components/responses/ForbiddenError'
+        '400':
+          $ref: '#/components/responses/BadRequestError'
+        '404':
+          $ref: '#/components/responses/NotFoundError'
+        '200':
+          $ref: '#/components/responses/SuccessListTransitGateways'
     patch:
       operationId: updatePrivateSpaceTransitGatewayRoutes
       description: updates the static routes of a transit gateway attachment
@@ -1034,17 +1057,6 @@ components:
               items:
                 type: string
                 description: The special domain of the VPC.
-        reservedCidrs:
-          type: array
-          description: >
-            The list of reserved CIDR blocks for your private space to prevent IP address overlap.
-            Required when you want to connect your private space to your corporate network (either on-premises or in the cloud).
-            Use CIDR notation and commas.
-          example: ["192.168.0.0/16", "172.16.0.0/12"]
-          items:
-            type: string
-            description: The reserved CIDR of the Private Space network.
-
     PrivateSpaceNetwork:
       type: object
       description: Private space network configuration
@@ -1233,6 +1245,17 @@ components:
             spaceName:
               type: string
               description: Private space display name.
+            ch2AwsAccountId:
+              type: string
+              description: CloudHub 2.0 AWS account id of the transit gateway (organization list only).
+        tgwResource:
+          type: string
+          description: AWS console URL pointing at the transit gateway resource (organization list only).
+        attachments:
+          type: array
+          description: Per-private-space attachments of this transit gateway (organization list only).
+          items:
+            $ref: '#/components/schemas/TransitGateway'
         status:
           type: object
           properties:
